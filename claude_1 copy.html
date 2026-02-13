@@ -1,0 +1,1119 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+    />
+    <title>Happy Valentine's Day!</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        image-rendering: pixelated;
+        image-rendering: -moz-crisp-edges;
+        image-rendering: crisp-edges;
+        /* Prevent selecting text while playing on mobile */
+        user-select: none;
+        -webkit-user-select: none;
+        -webkit-touch-callout: none;
+      }
+
+      body {
+        background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+        font-family: "Courier New", monospace;
+        overflow: hidden;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 100vh;
+        /* Prevent pull-to-refresh on mobile */
+        overscroll-behavior: none;
+      }
+
+      #login-screen {
+        text-align: center;
+        padding: 40px;
+        background: rgba(0, 0, 0, 0.6);
+        border-radius: 20px;
+        border: 4px solid #ff6b9d;
+        box-shadow: 0 0 30px rgba(255, 107, 157, 0.3);
+        /* Ensure login screen sits above game elements */
+        z-index: 2000;
+        position: relative;
+      }
+
+      #login-screen h1 {
+        color: #ff6b9d;
+        font-size: 48px;
+        margin-bottom: 20px;
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+        letter-spacing: 2px;
+      }
+
+      #login-screen input {
+        background: rgba(255, 255, 255, 0.1);
+        border: 2px solid #ff6b9d;
+        color: white;
+        padding: 15px 30px;
+        font-size: 27px;
+        border-radius: 10px;
+        margin: 20px 0;
+        width: 300px;
+        font-family: "Courier New", monospace;
+        text-align: center;
+        letter-spacing: 3px;
+        /* Better mobile input handling */
+        -webkit-appearance: none;
+        appearance: none;
+      }
+
+      #login-screen input:focus {
+        outline: none;
+        border-color: #ffc2d1;
+        box-shadow: 0 0 20px rgba(255, 107, 157, 0.5);
+      }
+
+      #login-screen button {
+        background: linear-gradient(135deg, #ff6b9d, #c44569);
+        border: none;
+        color: white;
+        padding: 15px 40px;
+        font-size: 27px;
+        border-radius: 10px;
+        cursor: pointer;
+        font-family: "Courier New", monospace;
+        font-weight: bold;
+        transition: transform 0.2s;
+        -webkit-appearance: none;
+        appearance: none;
+      }
+
+      #login-screen button:hover {
+        transform: scale(1.05);
+      }
+
+      .error {
+        color: #ff6b9d;
+        margin-top: 10px;
+        font-size: 14px;
+      }
+
+      .hearts-decoration {
+        position: absolute;
+        font-size: 20px;
+        animation: float 3s ease-in-out infinite;
+        opacity: 0.3;
+      }
+
+      @keyframes float {
+        0%,
+        100% {
+          transform: translateY(0px);
+        }
+        50% {
+          transform: translateY(-20px);
+        }
+      }
+
+      #game-container {
+        display: none;
+        position: relative;
+        width: 100vw;
+        height: 100vh;
+        background: #5c94fc;
+      }
+
+      #game-canvas {
+        display: block;
+        width: 100%;
+        height: 100%;
+      }
+
+      #message-overlay {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background: rgba(0, 0, 0, 0.9);
+        color: white;
+        padding: 40px;
+        border-radius: 20px;
+        border: 4px solid #ff6b9d;
+        text-align: center;
+        display: none;
+        z-index: 1000;
+        max-width: 1000px;
+        width: 90%; /* Better fit on mobile */
+      }
+
+      #message-overlay h2 {
+        color: #ff6b9d;
+        margin-bottom: 20px;
+        font-size: 42px;
+      }
+
+      #message-overlay p {
+        line-height: 1.8;
+        font-size: 24px;
+      }
+
+      #message-overlay button {
+        margin-top: 20px;
+        background: linear-gradient(135deg, #ff6b9d, #c44569);
+        border: none;
+        color: white;
+        padding: 12px 30px;
+        font-size: 24px;
+        border-radius: 10px;
+        cursor: pointer;
+        font-family: "Courier New", monospace;
+        font-weight: bold;
+      }
+
+      #hud {
+        position: absolute;
+        top: 20px;
+        left: 20px;
+        color: white;
+        font-size: 32px;
+        font-weight: bold;
+        text-shadow:
+          3px 3px 0px rgba(0, 0, 0, 1),
+          -1px -1px 0px rgba(0, 0, 0, 1),
+          1px -1px 0px rgba(0, 0, 0, 1),
+          -1px 1px 0px rgba(0, 0, 0, 1),
+          1px 1px 0px rgba(0, 0, 0, 1);
+        z-index: 100;
+        background: rgba(0, 0, 0, 0.5);
+        padding: 10px 20px;
+        border-radius: 10px;
+        pointer-events: none; /* Let touches pass through */
+      }
+
+      #end-message {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background: rgba(0, 0, 0, 0.95);
+        color: white;
+        padding: 50px;
+        border-radius: 20px;
+        border: 4px solid #ff6b9d;
+        text-align: center;
+        display: none;
+        z-index: 1000;
+        max-width: 1000px;
+        width: 90%;
+      }
+
+      #end-message h2 {
+        color: #ff6b9d;
+        margin-bottom: 30px;
+        font-size: 54px;
+      }
+
+      #end-message p {
+        line-height: 2;
+        font-size: 27px;
+        margin-bottom: 20px;
+      }
+
+      /* --- NEW TOUCH CONTROLS STYLES --- */
+      #touch-controls {
+        position: absolute;
+        bottom: 20px;
+        left: 0;
+        width: 100%;
+        height: 150px;
+        z-index: 500;
+        display: flex;
+        justify-content: space-between;
+        padding: 0 30px;
+        pointer-events: none; /* Allow clicks to pass through empty areas */
+      }
+
+      .control-group {
+        display: flex;
+        gap: 20px;
+        pointer-events: auto; /* Re-enable clicks on the buttons */
+      }
+
+      .touch-btn {
+        width: 120px;
+        height: 120px;
+        background: rgba(255, 107, 157, 0.3); /* Pink tint */
+        border: 2px solid rgba(255, 255, 255, 0.6);
+        border-radius: 50%;
+        color: white;
+        font-size: 54px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        touch-action: manipulation;
+        transition:
+          transform 0.1s,
+          background 0.1s;
+        backdrop-filter: blur(4px);
+      }
+
+      .touch-btn:active {
+        background: rgba(255, 107, 157, 0.6);
+        transform: scale(0.9);
+      }
+
+      /* Only show touch controls on touch devices (or small screens) if preferred, 
+         but we keep them visible generally for hybrid devices */
+      @media (hover: hover) and (pointer: fine) {
+        /* Optional: Hide on desktop if you strictly only want them on mobile
+           #touch-controls { display: none; } 
+           Current setting: Visible everywhere for ease of testing */
+      }
+    </style>
+    <!-- <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap"
+      rel="stylesheet"
+    /> -->
+  </head>
+  <body>
+    <div id="login-screen">
+      <div
+        class="hearts-decoration"
+        style="top: 10%; left: 10%; animation-delay: 1.5s"
+      >
+        ❤️
+      </div>
+      <div
+        class="hearts-decoration"
+        style="top: 20%; right: 15%; animation-delay: 0.5s"
+      >
+        💕
+      </div>
+      <div
+        class="hearts-decoration"
+        style="bottom: 15%; left: 20%; animation-delay: 1s"
+      >
+        💖
+      </div>
+      <div
+        class="hearts-decoration"
+        style="bottom: 10%; right: 10%; animation-delay: 1.5s"
+      >
+        ❤️
+      </div>
+      <div class="hearts-decoration" style="top: -10%; left: -10%">❤️</div>
+      <div
+        class="hearts-decoration"
+        style="top: -20%; right: -15%; animation-delay: 1s"
+      >
+        💕
+      </div>
+      <div
+        class="hearts-decoration"
+        style="bottom: -15%; left: -20%; animation-delay: 0.5s"
+      >
+        💖
+      </div>
+      <div
+        class="hearts-decoration"
+        style="bottom: -10%; right: -10%; animation-delay: 1s"
+      >
+        ❤️
+      </div>
+
+      <h1>✨ Happy Valentine's Day! ✨</h1>
+      <p style="color: #ffc2d1; margin-bottom: 30px; font-size: 24px">
+        Enter my baba's name to unlock my gift to her!
+      </p>
+      <input
+        type="text"
+        id="secret-code"
+        placeholder="Enter code..."
+        autocomplete="off"
+      />
+      <br />
+      <button onclick="checkCode()">START ADVENTURE</button>
+      <div class="error" id="error-msg"></div>
+      <!-- <p
+        style="margin-top: 30px; font-size: 21px; opacity: 0.8; color: #ffc2d1"
+      >
+        Made with ❤️ by Achyutha
+      </p> -->
+    </div>
+
+    <div id="game-container">
+      <div id="hud">
+        <div>Hearts: <span id="hearts-count">0</span></div>
+        <div>Lives: <span id="lives-count">3</span></div>
+      </div>
+      <canvas id="game-canvas"></canvas>
+
+      <div id="touch-controls">
+        <div class="control-group">
+          <div id="btn-left" class="touch-btn">⬅️</div>
+          <div id="btn-right" class="touch-btn">➡️</div>
+        </div>
+        <div class="control-group">
+          <div id="btn-jump" class="touch-btn">⬆️</div>
+        </div>
+      </div>
+
+      <div id="message-overlay">
+        <h2>💕 Happy Valentine's Day, Baby! 💕</h2>
+        <p>
+          You mean so much to me! I remember that you really love Nintendo
+          Games, so I built something for you as a Valentine's Day gift. I hope
+          you really like it!
+        </p>
+        <button onclick="startGame()">Let's Go! →</button>
+        <p
+          style="
+            margin-top: 30px;
+            font-size: 21px;
+            color: #ffc2d1;
+            font-style: italic;
+          "
+        >
+          Made with ❤️ by Achyutha
+        </p>
+      </div>
+
+      <div id="end-message">
+        <h2>🏰 You Made It Home! 🏰</h2>
+        <p>
+          Hope you enjoyed this personalised version of Super Mario Bros. Cant
+          wait to play so many games with you IRL. Happy Valentine's Day baba,
+          hoping to spend many many more with you.
+        </p>
+        <p style="color: #ff6b9d; margin-top: 30px; font-size: 24px">
+          ❤️ Happy Valentine's Day ❤️
+        </p>
+      </div>
+    </div>
+
+    <script>
+      // Login functionality
+      function checkCode() {
+        const input = document
+          .getElementById("secret-code")
+          .value.toLowerCase()
+          .trim();
+        const errorMsg = document.getElementById("error-msg");
+
+        if (input === "kakuly") {
+          document.getElementById("login-screen").style.display = "none";
+          document.getElementById("game-container").style.display = "block";
+          document.getElementById("message-overlay").style.display = "block";
+          resizeCanvas(); // Ensure canvas is sized correctly upon showing
+        } else {
+          errorMsg.textContent = "❌ Wrong code! Try again...";
+          document.getElementById("secret-code").value = "";
+        }
+      }
+
+      document
+        .getElementById("secret-code")
+        .addEventListener("keypress", function (e) {
+          if (e.key === "Enter") checkCode();
+        });
+
+      // Game variables
+      const canvas = document.getElementById("game-canvas");
+      const ctx = canvas.getContext("2d");
+      let gameStarted = false;
+      let gameWon = false;
+
+      function resizeCanvas() {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+      }
+      resizeCanvas();
+      window.addEventListener("resize", resizeCanvas);
+
+      // Player
+      const player = {
+        x: 100,
+        y: 300,
+        width: 24 * 2, // Doubled from 32 to 64
+        height: 36 * 2, // Doubled from 32 to 64
+        velocityY: 0,
+        velocityX: 0,
+        speed: 3, // Reduced from 5 to 3
+        jumpPower: 12,
+        gravity: 0.5,
+        onGround: false,
+        lives: 3,
+        hearts: 0,
+        invulnerable: false,
+        invulnerableTimer: 0,
+        facingRight: true,
+        animFrame: 0,
+        animTimer: 0,
+      };
+
+      // Load princess sprite
+      const princessSprite = new Image();
+      princessSprite.src = "sprite_final.png";
+      const SPRITE_FRAMES = 3; // Total frames in the sprite sheet
+      const SPRITE_WIDTH = 24; // Width of each frame in the sprite sheet
+      const SPRITE_HEIGHT = 36; // Height of each frame in the sprite sheet
+
+      // Input
+      const keys = {};
+
+      // Logic to perform a jump (extracted for use by both Keys and Touch)
+      function performJump() {
+        if (player.onGround && gameStarted) {
+          player.velocityY = -player.jumpPower;
+          player.onGround = false;
+        }
+      }
+
+      // Keyboard Listeners
+      window.addEventListener("keydown", (e) => {
+        keys[e.key] = true;
+        if (e.key === "ArrowUp") {
+          performJump();
+        }
+      });
+      window.addEventListener("keyup", (e) => (keys[e.key] = false));
+
+      // --- TOUCH CONTROL IMPLEMENTATION ---
+
+      function addTouchControl(elementId, keyToSimulate, isJumpButton = false) {
+        const elem = document.getElementById(elementId);
+
+        // Function to handle start of touch/click
+        const handleStart = (e) => {
+          e.preventDefault(); // Prevent default browser behavior (scrolling/mouse emulation)
+          keys[keyToSimulate] = true;
+          if (isJumpButton) performJump();
+        };
+
+        // Function to handle end of touch/click
+        const handleEnd = (e) => {
+          e.preventDefault();
+          keys[keyToSimulate] = false;
+        };
+
+        // Touch events
+        elem.addEventListener("touchstart", handleStart, { passive: false });
+        elem.addEventListener("touchend", handleEnd, { passive: false });
+
+        // Mouse events (for testing on desktop with mouse)
+        elem.addEventListener("mousedown", handleStart);
+        elem.addEventListener("mouseup", handleEnd);
+        elem.addEventListener("mouseleave", handleEnd);
+      }
+
+      addTouchControl("btn-left", "ArrowLeft");
+      addTouchControl("btn-right", "ArrowRight");
+      addTouchControl("btn-jump", "ArrowUp", true);
+
+      // Level design
+      const TILE_SIZE = 48;
+      const LEVEL_LENGTH = 235;
+
+      const platforms = [];
+      const enemies = [];
+      const hearts = [];
+
+      function generateLevel() {
+        // GROUND - automatically generated
+        for (let i = 0; i < LEVEL_LENGTH; i++) {
+          platforms.push({
+            x: i * TILE_SIZE,
+            y: canvas.height - TILE_SIZE,
+            width: TILE_SIZE,
+            height: TILE_SIZE,
+            type: "ground",
+          });
+        }
+
+        // ============================================
+        // PLATFORMS
+        // ============================================
+
+        // platforms.push({
+        //   x: 300,
+        //   y: 400,
+        //   width: TILE_SIZE,
+        //   height: TILE_SIZE,
+        //   type: "platform",
+        // });
+        // platforms.push({
+        //   x: 332,
+        //   y: 400,
+        //   width: TILE_SIZE,
+        //   height: TILE_SIZE,
+        //   type: "platform",
+        // });
+        // platforms.push({
+        //   x: 364,
+        //   y: 400,
+        //   width: TILE_SIZE,
+        //   height: TILE_SIZE,
+        //   type: "platform",
+        // });
+
+        // platforms.push({
+        //   x: 500,
+        //   y: 300,
+        //   width: TILE_SIZE,
+        //   height: TILE_SIZE,
+        //   type: "platform",
+        // });
+        // platforms.push({
+        //   x: 532,
+        //   y: 300,
+        //   width: TILE_SIZE,
+        //   height: TILE_SIZE,
+        //   type: "platform",
+        // });
+
+        // Procedural generation
+
+        // for (let i = 0; i < 70; i++) {
+        //   const x = 100 + i * 200 + Math.random() * 100;
+        //   const y = 600 + Math.random() * 200;
+        //   const width = 3 + Math.floor(Math.random() * 3);
+
+        //   for (let j = 0; j < width; j++) {
+        //     platforms.push({
+        //       x: x + j * TILE_SIZE,
+        //       y: y,
+        //       width: TILE_SIZE,
+        //       height: TILE_SIZE,
+        //       type: "platform",
+        //     });
+        //   }
+        // }
+
+        let currentX = 0; // starting position
+
+        for (let i = 0; i < 35; i++) {
+          const gap = 55 + Math.random() * 60; // space between platforms
+          currentX += gap;
+
+          const y = 700 + Math.random() * 250;
+          const widthInTiles = 3 + Math.floor(Math.random() * 3); // 3–5 tiles
+
+          // Create platform tiles
+          for (let j = 0; j < widthInTiles; j++) {
+            platforms.push({
+              x: currentX + j * TILE_SIZE,
+              y: y,
+              width: TILE_SIZE,
+              height: TILE_SIZE,
+              type: "platform",
+            });
+          }
+
+          // Move currentX to the END of this platform
+          currentX += widthInTiles * TILE_SIZE;
+        }
+
+        currentX = 200;
+        for (let i = 0; i < 25; i++) {
+          const gap = 110 + Math.random() * 100; // space between platforms
+          currentX += gap;
+
+          const y = 420 + Math.random() * 250;
+          const widthInTiles = 3 + Math.floor(Math.random() * 3); // 3–5 tiles
+
+          // Create platform tiles
+          for (let j = 0; j < widthInTiles; j++) {
+            platforms.push({
+              x: currentX + j * TILE_SIZE,
+              y: y,
+              width: TILE_SIZE,
+              height: TILE_SIZE,
+              type: "platform",
+            });
+          }
+
+          // Move currentX to the END of this platform
+          currentX += widthInTiles * TILE_SIZE;
+        }
+
+        // ============================================
+        // HEARTS
+        // ============================================
+
+        // hearts.push({
+        //   x: 332,
+        //   y: 350,
+        //   width: 24,
+        //   height: 24,
+        //   collected: false,
+        //   float: 0,
+        // });
+
+        // hearts.push({
+        //   x: 516,
+        //   y: 250,
+        //   width: 24,
+        //   height: 24,
+        //   collected: false,
+        //   float: 0,
+        // });
+
+        for (let i = 0; i < 35; i++) {
+          hearts.push({
+            x: 300 + i * 250 + Math.random() * 100,
+            y: 600 + Math.random() * 250,
+            width: 24,
+            height: 24,
+            collected: false,
+            float: Math.random() * Math.PI * 2,
+          });
+        }
+
+        // ============================================
+        // ENEMIES
+        // ============================================
+
+        enemies.push({
+          x: 600,
+          y: canvas.height - TILE_SIZE * 1.625,
+          width: 32,
+          height: 32,
+          velocityX: 1 + Math.random() * 0.4 - 0.1,
+          direction: 1,
+          patrolStart: 600,
+          patrolEnd: 800,
+          animFrame: 0,
+          animTimer: 0,
+        });
+
+        for (let i = 0; i < 20; i++) {
+          const startX = 1000 + i * 400 + Math.random() * 200;
+          enemies.push({
+            x: startX,
+            y: canvas.height - TILE_SIZE * 1.625,
+            width: 32,
+            height: 32,
+            velocityX: 1 + Math.random() * 0.4 - 0.1,
+            direction: 1,
+            patrolStart: startX,
+            patrolEnd: startX + 200,
+            animFrame: 0,
+            animTimer: 0,
+          });
+        }
+
+        // ============================================
+        // CASTLE
+        // ============================================
+        const castleX = (LEVEL_LENGTH - 10) * TILE_SIZE;
+        for (let i = 0; i < 8; i++) {
+          for (let j = 0; j < 6; j++) {
+            platforms.push({
+              x: castleX + i * TILE_SIZE,
+              y: canvas.height - TILE_SIZE - j * TILE_SIZE,
+              width: TILE_SIZE,
+              height: TILE_SIZE,
+              type: "castle",
+            });
+          }
+        }
+      }
+
+      generateLevel();
+
+      // Camera
+      const camera = {
+        x: 0,
+        y: 0,
+      };
+
+      function updateCamera() {
+        camera.x = player.x - canvas.width / 3;
+        camera.x = Math.max(0, camera.x);
+        camera.x = Math.min(camera.x, LEVEL_LENGTH * TILE_SIZE - canvas.width);
+      }
+
+      // Game functions
+      function startGame() {
+        document.getElementById("message-overlay").style.display = "none";
+        gameStarted = true;
+        gameLoop();
+      }
+
+      function update() {
+        if (!gameStarted || gameWon) return;
+
+        // Horizontal movement
+        player.velocityX = 0;
+        if (keys["ArrowLeft"]) {
+          player.velocityX = -player.speed;
+          player.facingRight = false;
+        }
+        if (keys["ArrowRight"]) {
+          player.velocityX = player.speed;
+          player.facingRight = true;
+        }
+
+        player.x += player.velocityX;
+
+        // Gravity
+        player.velocityY += player.gravity;
+        player.y += player.velocityY;
+
+        // Animation
+        if (player.velocityX !== 0 && player.onGround) {
+          player.animTimer++;
+          if (player.animTimer > 5) {
+            player.animFrame = (player.animFrame + 1) % SPRITE_FRAMES;
+            player.animTimer = 0;
+          }
+        } else {
+          player.animFrame = 0;
+        }
+
+        // Platform collision
+        player.onGround = false;
+        platforms.forEach((platform) => {
+          if (
+            player.x < platform.x + platform.width &&
+            player.x + player.width > platform.x &&
+            player.y + player.height > platform.y &&
+            player.y + player.height < platform.y + platform.height + 10 &&
+            player.velocityY >= 0
+          ) {
+            player.y = platform.y - player.height;
+            player.velocityY = 0;
+            player.onGround = true;
+          }
+        });
+
+        // Collect hearts
+        hearts.forEach((heart) => {
+          if (
+            !heart.collected &&
+            player.x < heart.x + heart.width &&
+            player.x + player.width > heart.x &&
+            player.y < heart.y + heart.height &&
+            player.y + player.height > heart.y
+          ) {
+            heart.collected = true;
+            player.hearts++;
+            document.getElementById("hearts-count").textContent = player.hearts;
+          }
+        });
+
+        // Enemy movement and collision
+        enemies.forEach((enemy) => {
+          enemy.x += enemy.velocityX * enemy.direction;
+
+          if (enemy.x <= enemy.patrolStart || enemy.x >= enemy.patrolEnd) {
+            enemy.direction *= -1;
+          }
+
+          enemy.animTimer++;
+          if (enemy.animTimer > 8) {
+            enemy.animFrame = (enemy.animFrame + 1) % 2;
+            enemy.animTimer = 0;
+          }
+
+          // Enemy collision
+          if (
+            !player.invulnerable &&
+            player.x < enemy.x + enemy.width &&
+            player.x + player.width > enemy.x &&
+            player.y < enemy.y + enemy.height &&
+            player.y + player.height > enemy.y
+          ) {
+            // Jump on enemy
+            if (
+              player.velocityY > 0 &&
+              player.y + player.height - 10 < enemy.y
+            ) {
+              enemy.x = -1000; // Remove enemy
+              player.velocityY = -8;
+            } else {
+              // Take damage
+              player.lives--;
+              document.getElementById("lives-count").textContent = player.lives;
+              player.invulnerable = true;
+              player.invulnerableTimer = 120;
+              player.x -= 50;
+
+              if (player.lives <= 0) {
+                resetGame();
+              }
+            }
+          }
+        });
+
+        // Invulnerability
+        if (player.invulnerable) {
+          player.invulnerableTimer--;
+          if (player.invulnerableTimer <= 0) {
+            player.invulnerable = false;
+          }
+        }
+
+        // Death by falling
+        if (player.y > canvas.height + 100) {
+          player.lives--;
+          document.getElementById("lives-count").textContent = player.lives;
+          player.x = 100;
+          player.y = 300;
+          player.velocityY = 0;
+
+          if (player.lives <= 0) {
+            resetGame();
+          }
+        }
+
+        // Win condition - reach castle
+        if (player.x > (LEVEL_LENGTH - 15) * TILE_SIZE) {
+          gameWon = true;
+          document.getElementById("end-message").style.display = "block";
+        }
+
+        updateCamera();
+      }
+
+      function resetGame() {
+        player.x = 100;
+        player.y = 300;
+        player.velocityY = 0;
+        player.velocityX = 0;
+        player.lives = 3;
+        player.hearts = 0;
+        player.invulnerable = false;
+        document.getElementById("lives-count").textContent = player.lives;
+        document.getElementById("hearts-count").textContent = player.hearts;
+        hearts.forEach((h) => (h.collected = false));
+      }
+
+      function drawPlayer() {
+        ctx.save();
+
+        // Invulnerability flash
+        if (
+          player.invulnerable &&
+          Math.floor(player.invulnerableTimer / 5) % 2 === 0
+        ) {
+          ctx.globalAlpha = 0.5;
+        }
+
+        const px = player.x - camera.x;
+        const py = player.y;
+
+        // Calculate which frame to draw from the sprite sheet
+        const frameX = player.animFrame * SPRITE_WIDTH;
+
+        // Flip the sprite if facing left
+        if (!player.facingRight) {
+          ctx.translate(px + player.width, py);
+          ctx.scale(-1, 1);
+          ctx.drawImage(
+            princessSprite,
+            frameX,
+            0, // Source x, y in sprite sheet
+            SPRITE_WIDTH,
+            SPRITE_HEIGHT, // Source width, height
+            0,
+            0, // Destination x, y (translated)
+            player.width,
+            player.height, // Destination width, height
+          );
+        } else {
+          ctx.drawImage(
+            princessSprite,
+            frameX,
+            0, // Source x, y in sprite sheet
+            SPRITE_WIDTH,
+            SPRITE_HEIGHT, // Source width, height
+            px,
+            py, // Destination x, y
+            player.width,
+            player.height, // Destination width, height
+          );
+        }
+
+        ctx.restore();
+      }
+
+      function draw() {
+        // Sky
+        const gradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
+        gradient.addColorStop(0, "#5c94fc");
+        gradient.addColorStop(1, "#87ceeb");
+        ctx.fillStyle = gradient;
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        // Clouds
+        ctx.fillStyle = "rgba(255, 255, 255, 0.7)";
+        for (let i = 0; i < 20; i++) {
+          const x = ((i * 300 - camera.x * 0.5) % (canvas.width + 200)) - 100;
+          ctx.beginPath();
+          ctx.arc(x, 100 + i * 30, 30, 0, Math.PI * 2);
+          ctx.arc(x + 30, 100 + i * 30, 40, 0, Math.PI * 2);
+          ctx.arc(x + 60, 100 + i * 30, 30, 0, Math.PI * 2);
+          ctx.fill();
+        }
+
+        // ============================================
+        // NEW: BACKGROUND TEXT
+        // ============================================
+        ctx.save();
+        ctx.fillStyle = "rgba(50, 55, 45, 0.9)"; // Giant faint pink text
+        ctx.font = "70px Helvetica"; // Very large font
+        ctx.textAlign = "left";
+
+        // Edit your background messages here!
+        // x = horizontal position in the level
+        // y = vertical height
+        const bgMessages = [
+          { text: "Collect the Hearts", x: 600, y: 200 },
+          { text: "Avoid the Enemies", x: 600, y: 300 },
+          { text: "Can you reach the end? ", x: 600, y: 400 },
+        ];
+
+        bgMessages.forEach((msg) => {
+          // The 0.8 multiplier creates the "depth" effect
+          const screenX = msg.x - camera.x * 0.8;
+
+          // Only draw if visible on screen
+          if (screenX > -1000 && screenX < canvas.width + 1000) {
+            ctx.fillText(msg.text, screenX, msg.y);
+          }
+        });
+        ctx.restore();
+        // ============================================
+
+        // Platforms
+        platforms.forEach((platform) => {
+          const screenX = platform.x - camera.x;
+          if (screenX > -TILE_SIZE && screenX < canvas.width + TILE_SIZE) {
+            if (platform.type === "ground") {
+              ctx.fillStyle = "#8B4513";
+              ctx.fillRect(
+                screenX,
+                platform.y,
+                platform.width,
+                platform.height,
+              );
+              ctx.fillStyle = "#228B22";
+              ctx.fillRect(screenX, platform.y, platform.width, 8);
+            } else if (platform.type === "platform") {
+              ctx.fillStyle = "#D2691E";
+              ctx.fillRect(
+                screenX,
+                platform.y,
+                platform.width,
+                platform.height,
+              );
+              ctx.strokeStyle = "#8B4513";
+              ctx.lineWidth = 2;
+              ctx.strokeRect(
+                screenX,
+                platform.y,
+                platform.width,
+                platform.height,
+              );
+            } else if (platform.type === "castle") {
+              ctx.fillStyle = "#696969";
+              ctx.fillRect(
+                screenX,
+                platform.y,
+                platform.width,
+                platform.height,
+              );
+              ctx.strokeStyle = "#404040";
+              ctx.lineWidth = 2;
+              ctx.strokeRect(
+                screenX,
+                platform.y,
+                platform.width,
+                platform.height,
+              );
+            }
+          }
+        });
+
+        // Hearts
+        hearts.forEach((heart) => {
+          if (!heart.collected) {
+            const screenX = heart.x - camera.x;
+            if (
+              screenX > -heart.width &&
+              screenX < canvas.width + heart.width
+            ) {
+              heart.float += 0.05;
+              const floatY = Math.sin(heart.float) * 5;
+
+              ctx.fillStyle = "#ff6b9d";
+              ctx.font = "24px Arial";
+              ctx.fillText("❤", screenX, heart.y + floatY);
+            }
+          }
+        });
+
+        // Enemies
+        enemies.forEach((enemy) => {
+          const screenX = enemy.x - camera.x;
+          if (screenX > -enemy.width && screenX < canvas.width + enemy.width) {
+            // Body
+            ctx.fillStyle = "#4a0e4e";
+            ctx.fillRect(screenX, enemy.y + 8, enemy.width, 16);
+
+            // Eyes
+            ctx.fillStyle = "#ff0000";
+            const eyeOffset = enemy.animFrame * 2;
+            ctx.fillRect(screenX + 8, enemy.y + 12 + eyeOffset, 4, 4);
+            ctx.fillRect(screenX + 20, enemy.y + 12 + eyeOffset, 4, 4);
+
+            // Feet
+            ctx.fillStyle = "#2a0a2e";
+            ctx.fillRect(screenX + 4, enemy.y + 24, 8, 8);
+            ctx.fillRect(screenX + 20, enemy.y + 24, 8, 8);
+          }
+        });
+
+        // Player
+        drawPlayer();
+
+        // Castle flag
+        const flagX = (LEVEL_LENGTH - 9) * TILE_SIZE - camera.x;
+        ctx.fillStyle = "#8B4513";
+        ctx.fillRect(flagX, canvas.height - TILE_SIZE * 7, 8, TILE_SIZE * 6);
+        ctx.fillStyle = "#ff6b9d";
+        ctx.beginPath();
+        ctx.moveTo(flagX + 8, canvas.height - TILE_SIZE * 7);
+        ctx.lineTo(flagX + 48, canvas.height - TILE_SIZE * 6.5);
+        ctx.lineTo(flagX + 8, canvas.height - TILE_SIZE * 6);
+        ctx.fill();
+
+        // ============================================
+        // NEW: CASTLE TEXT
+        // ============================================
+        ctx.save();
+        ctx.fillStyle = "#c7c7c7"; // White text
+        ctx.textAlign = "left";
+        ctx.font = "38px Helvetica"; // Small retro font
+
+        // "flagX" is the center of the castle, so we use it to position text
+        // We draw two lines of text on the castle wall
+        ctx.fillText("ACHYUTHA'S", flagX + 25, canvas.height - TILE_SIZE * 3.5);
+        ctx.fillText("CASTLE", flagX + 25, canvas.height - TILE_SIZE * 2.5);
+        ctx.restore();
+      }
+
+      function gameLoop() {
+        update();
+        draw();
+        requestAnimationFrame(gameLoop);
+      }
+    </script>
+  </body>
+</html>
