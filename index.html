@@ -222,6 +222,24 @@
         margin-bottom: 20px;
       }
 
+      #game-stage {
+        position: absolute;
+        width: 1280px; /* Fixed Game Width */
+        height: 720px; /* Fixed Game Height */
+        transform-origin: top left; /* Scale from top-left corner */
+        overflow: hidden;
+      }
+
+      /* Update game-container to be a black background for letterboxing */
+      #game-container {
+        display: none;
+        position: relative;
+        width: 100vw;
+        height: 100vh;
+        background: #000; /* Black bars on sides */
+        overflow: hidden;
+      }
+
       /* --- NEW TOUCH CONTROLS STYLES --- */
       #touch-controls {
         position: absolute;
@@ -346,7 +364,7 @@
       </p> -->
     </div>
 
-    <div id="game-container">
+    <!-- <div id="game-container">
       <div id="hud">
         <div>Hearts: <span id="hearts-count">0</span></div>
         <div>Lives: <span id="lives-count">3</span></div>
@@ -393,6 +411,59 @@
         <p style="color: #ff6b9d; margin-top: 30px; font-size: 24px">
           ❤️ Happy Valentine's Day ❤️
         </p>
+      </div>
+    </div> -->
+
+    <div id="game-container">
+      <div id="game-stage">
+        <div id="hud">
+          <div>Hearts: <span id="hearts-count">0</span></div>
+          <div>Lives: <span id="lives-count">3</span></div>
+        </div>
+
+        <canvas id="game-canvas"></canvas>
+
+        <div id="touch-controls">
+          <div class="control-group">
+            <div id="btn-left" class="touch-btn">⬅️</div>
+            <div id="btn-right" class="touch-btn">➡️</div>
+          </div>
+          <div class="control-group">
+            <div id="btn-jump" class="touch-btn">⬆️</div>
+          </div>
+        </div>
+
+        <div id="message-overlay">
+          <h2>💕 Happy Valentine's Day, Baby! 💕</h2>
+          <p>
+            You mean so much to me! I remember that you really love Nintendo
+            Games, so I built something for you as a Valentine's Day gift. I
+            hope you really like it!
+          </p>
+          <button onclick="startGame()">Let's Go! →</button>
+          <p
+            style="
+              margin-top: 30px;
+              font-size: 21px;
+              color: #ffc2d1;
+              font-style: italic;
+            "
+          >
+            Made with ❤️ by Achyutha
+          </p>
+        </div>
+
+        <div id="end-message">
+          <h2>🏰 You Made It Home! 🏰</h2>
+          <p>
+            Hope you enjoyed this personalised version of Super Mario Bros. Cant
+            wait to play so many games with you IRL. Happy Valentine's Day baba,
+            hoping to spend many many more with you.
+          </p>
+          <p style="color: #ff6b9d; margin-top: 30px; font-size: 24px">
+            ❤️ Happy Valentine's Day ❤️
+          </p>
+        </div>
       </div>
     </div>
 
@@ -441,12 +512,43 @@
       let gameStarted = false;
       let gameWon = false;
 
-      function resizeCanvas() {
-        canvas.width = window.innerWidth;
-        canvas.height = window.innerHeight;
+      // function resizeCanvas() {
+      //   canvas.width = window.innerWidth;
+      //   canvas.height = window.innerHeight;
+      // }
+      // Define the base resolution you want the game to run at
+      const GAME_WIDTH = 1280;
+      const GAME_HEIGHT = 720;
+
+      function resizeGame() {
+        const stage = document.getElementById("game-stage");
+        const container = document.getElementById("game-container");
+
+        // 1. Calculate the scale factor (keep aspect ratio)
+        const scaleX = window.innerWidth / GAME_WIDTH;
+        const scaleY = window.innerHeight / GAME_HEIGHT;
+        const scale = Math.min(scaleX, scaleY);
+
+        // 2. Apply the scale
+        stage.style.transform = `scale(${scale})`;
+
+        // 3. Center the stage on screen
+        const scaledWidth = GAME_WIDTH * scale;
+        const scaledHeight = GAME_HEIGHT * scale;
+
+        stage.style.left = `${(window.innerWidth - scaledWidth) / 2}px`;
+        stage.style.top = `${(window.innerHeight - scaledHeight) / 2}px`;
+
+        // 4. Ensure internal canvas resolution matches the base resolution
+        canvas.width = GAME_WIDTH;
+        canvas.height = GAME_HEIGHT;
       }
-      resizeCanvas();
-      window.addEventListener("resize", resizeCanvas);
+
+      // Initial call and event listener
+      resizeGame();
+      window.addEventListener("resize", resizeGame);
+      // resizeCanvas();
+      // window.addEventListener("resize", resizeCanvas);
 
       // Player
       const player = {
@@ -530,7 +632,7 @@
 
       // Level design
       const TILE_SIZE = 48;
-      const LEVEL_LENGTH = 235;
+      const LEVEL_LENGTH = 220;
 
       const platforms = [];
       const enemies = [];
@@ -581,7 +683,7 @@
         //   height: TILE_SIZE,
         //   type: "platform",
         // });
-        for (let j = 0; j < 4; j++) {
+        for (let j = 1; j < 4; j++) {
           platforms.push({
             x: 0 + j * TILE_SIZE,
             y: 400,
@@ -611,11 +713,11 @@
 
         let currentX = 0; // starting position
 
-        for (let i = 0; i < 35; i++) {
-          const gap = 55 + Math.random() * 60; // space between platforms
+        for (let i = 0; i < 29; i++) {
+          const gap = 70 + Math.random() * 60; // space between platforms
           currentX += gap;
 
-          const y = 700 + Math.random() * 250;
+          const y = 450 + Math.random() * 150;
           const widthInTiles = 3 + Math.floor(Math.random() * 3); // 3–5 tiles
 
           // Create platform tiles
@@ -633,12 +735,12 @@
           currentX += widthInTiles * TILE_SIZE;
         }
 
-        currentX = 200;
-        for (let i = 0; i < 25; i++) {
-          const gap = 110 + Math.random() * 100; // space between platforms
+        currentX = 400;
+        for (let i = 0; i < 27; i++) {
+          const gap = 90 + Math.random() * 75; // space between platforms
           currentX += gap;
 
-          const y = 420 + Math.random() * 250;
+          const y = 280 + Math.random() * 150;
           const widthInTiles = 3 + Math.floor(Math.random() * 3); // 3–5 tiles
 
           // Create platform tiles
@@ -678,10 +780,10 @@
         //   float: 0,
         // });
 
-        for (let i = 0; i < 35; i++) {
+        for (let i = 0; i < 30; i++) {
           hearts.push({
             x: 300 + i * 250 + Math.random() * 100,
-            y: 600 + Math.random() * 250,
+            y: 350 + Math.random() * 200,
             width: 24,
             height: 24,
             collected: false,
@@ -967,13 +1069,26 @@
         ctx.fillRect(0, 0, canvas.width, canvas.height);
 
         // Clouds
+        // ctx.fillStyle = "rgba(255, 255, 255, 0.7)";
+        // for (let i = 0; i < 20; i++) {
+        //   const x = ((i * 300 - camera.x * 0.5) % (canvas.width + 200)) - 100;
+        //   ctx.beginPath();
+        //   ctx.arc(x, 100 + i * 30, 30, 0, Math.PI * 2);
+        //   ctx.arc(x + 30, 100 + i * 30, 40, 0, Math.PI * 2);
+        //   ctx.arc(x + 60, 100 + i * 30, 30, 0, Math.PI * 2);
+        //   ctx.fill();
+        // }
         ctx.fillStyle = "rgba(255, 255, 255, 0.7)";
         for (let i = 0; i < 20; i++) {
           const x = ((i * 300 - camera.x * 0.5) % (canvas.width + 200)) - 100;
+
+          // CHANGED: 30 is the starting height, i * 10 keeps them in the top "sky" area
+          const y = 30 + i * 17;
+
           ctx.beginPath();
-          ctx.arc(x, 100 + i * 30, 30, 0, Math.PI * 2);
-          ctx.arc(x + 30, 100 + i * 30, 40, 0, Math.PI * 2);
-          ctx.arc(x + 60, 100 + i * 30, 30, 0, Math.PI * 2);
+          ctx.arc(x, y, 30, 0, Math.PI * 2);
+          ctx.arc(x + 30, y, 40, 0, Math.PI * 2);
+          ctx.arc(x + 60, y, 30, 0, Math.PI * 2);
           ctx.fill();
         }
 
@@ -982,16 +1097,16 @@
         // ============================================
         ctx.save();
         ctx.fillStyle = "rgba(50, 55, 45, 0.9)"; // Giant faint pink text
-        ctx.font = "70px Helvetica"; // Very large font
+        ctx.font = "bold 50px 'Courier New'"; // Very large font
         ctx.textAlign = "left";
 
         // Edit your background messages here!
         // x = horizontal position in the level
         // y = vertical height
         const bgMessages = [
-          { text: "Collect the Hearts", x: 600, y: 200 },
-          { text: "Avoid the Enemies", x: 600, y: 300 },
-          { text: "Can you reach the end? ", x: 600, y: 400 },
+          { text: "Collect the Hearts", x: 300, y: 100 },
+          { text: "Avoid the Enemies", x: 300, y: 180 },
+          { text: "Can you reach the end? ", x: 300, y: 260 },
         ];
 
         bgMessages.forEach((msg) => {
@@ -1115,7 +1230,7 @@
         ctx.save();
         ctx.fillStyle = "#c7c7c7"; // White text
         ctx.textAlign = "left";
-        ctx.font = "38px Helvetica"; // Small retro font
+        ctx.font = "38px Algerian"; // Small retro font
 
         // "flagX" is the center of the castle, so we use it to position text
         // We draw two lines of text on the castle wall

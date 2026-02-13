@@ -206,7 +206,7 @@
         text-align: center;
         display: none;
         z-index: 1000;
-        max-width: 1000px;
+        max-width: 1100px;
         width: 90%;
       }
 
@@ -398,14 +398,27 @@
 
     <script>
       // Login functionality
-      function checkCode() {
+      async function hashString(str) {
+        const encoder = new TextEncoder();
+        const data = encoder.encode(str);
+        const hashBuffer = await crypto.subtle.digest("SHA-256", data);
+        const hashArray = Array.from(new Uint8Array(hashBuffer));
+        return hashArray.map((b) => b.toString(16).padStart(2, "0")).join("");
+      }
+
+      async function checkCode() {
         const input = document
           .getElementById("secret-code")
           .value.toLowerCase()
           .trim();
         const errorMsg = document.getElementById("error-msg");
 
-        if (input === "kakuly") {
+        const hashedInput = await hashString(input);
+        // (Replace this string with your own generated hash!)
+        const correctHash =
+          "293bd1962fe5e223b8af24debfd0b54866deffb76e85943b538ea1a61cc55ec3";
+
+        if (hashedInput === correctHash) {
           document.getElementById("login-screen").style.display = "none";
           document.getElementById("game-container").style.display = "block";
           document.getElementById("message-overlay").style.display = "block";
@@ -568,13 +581,15 @@
         //   height: TILE_SIZE,
         //   type: "platform",
         // });
-        // platforms.push({
-        //   x: 532,
-        //   y: 300,
-        //   width: TILE_SIZE,
-        //   height: TILE_SIZE,
-        //   type: "platform",
-        // });
+        for (let j = 0; j < 4; j++) {
+          platforms.push({
+            x: 0 + j * TILE_SIZE,
+            y: 400,
+            width: TILE_SIZE,
+            height: TILE_SIZE,
+            type: "platform",
+          });
+        }
 
         // Procedural generation
 
