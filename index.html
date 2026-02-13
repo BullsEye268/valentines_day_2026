@@ -581,13 +581,15 @@
         //   height: TILE_SIZE,
         //   type: "platform",
         // });
-        // platforms.push({
-        //   x: 532,
-        //   y: 300,
-        //   width: TILE_SIZE,
-        //   height: TILE_SIZE,
-        //   type: "platform",
-        // });
+        for (let j = 0; j < 4; j++) {
+          platforms.push({
+            x: 0 + j * TILE_SIZE,
+            y: 400,
+            width: TILE_SIZE,
+            height: TILE_SIZE,
+            type: "platform",
+          });
+        }
 
         // Procedural generation
 
