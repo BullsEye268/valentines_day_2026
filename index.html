@@ -213,7 +213,7 @@
       #end-message h2 {
         color: #ff6b9d;
         margin-bottom: 30px;
-        font-size: 54px;
+        font-size: 48px;
       }
 
       #end-message p {
@@ -366,7 +366,7 @@
 
       <h1>✨ Happy Valentine's Day! ✨</h1>
       <p style="color: #ffc2d1; margin-bottom: 30px; font-size: 24px">
-        Enter my baba's name to unlock my gift to her!
+        Enter my princess's name to unlock my gift to her
       </p>
       <input
         type="text"
@@ -466,9 +466,9 @@
         <div id="message-overlay">
           <h2>💕 A Valentine's Adventure! 💕</h2>
           <p>
-            You mean so much to me! I remember that you really love Nintendo
-            Games, so I built something for you as a Valentine's Day gift. I
-            hope you really like it!
+            My princess! You mean so much to me! I remember that you really love
+            Nintendo Games, so I built something for you as a Valentine's Day
+            gift. I hope you really like it!
           </p>
           <button onclick="startGame()">Let's Go! →</button>
           <p
@@ -484,16 +484,17 @@
         </div>
 
         <div id="end-message">
-          <h2>🏰 You Made It Home! 🏰</h2>
+          <h2>🏰 You Made It Home, Princess! 🏰</h2>
           <p>
             Hope you enjoyed this personalised version of Super Mario Bros. I
             miss you so much and I cannot wait to play so many games with you
-            IRL. Happy Valentine's Day baba, hoping to spend many many more with
-            you.
+            IRL.<br />
+            Baba, Happy Valentine's Day, and I'm looking forward to spending
+            many many more with you.
           </p>
-          <p style="color: #ff6b9d; margin-top: 30px; font-size: 24px">
+          <!-- <p style="color: #ff6b9d; margin-top: 30px; font-size: 24px">
             ❤️ Happy Valentine's Day ❤️
-          </p>
+          </p> -->
           <p
             style="
               margin-top: 30px;
@@ -756,7 +757,7 @@
         let currentX = 0; // starting position
 
         for (let i = 0; i < 29; i++) {
-          const gap = 70 + Math.random() * 60; // space between platforms
+          const gap = 80 + Math.random() * 70; // space between platforms
           currentX += gap;
 
           const y = 450 + Math.random() * 150;
@@ -1243,7 +1244,7 @@
               heart.float += 0.05;
               const floatY = Math.sin(heart.float) * 5;
 
-              ctx.fillStyle = "#ff6b9d";
+              ctx.fillStyle = "#e94a6f";
               ctx.font = "24px Arial";
               ctx.fillText("❤", screenX, heart.y + floatY);
             }
@@ -1289,7 +1290,7 @@
         // NEW: CASTLE TEXT
         // ============================================
         ctx.save();
-        ctx.fillStyle = "#c7c7c7"; // White text
+        ctx.fillStyle = "#fffde8"; // White text
         ctx.textAlign = "left";
         ctx.font = "38px Algerian"; // Small retro font
 
