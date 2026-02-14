@@ -222,6 +222,26 @@
         margin-bottom: 20px;
       }
 
+      #end-message button {
+        margin-top: 25px;
+        background: linear-gradient(135deg, #ff6b9d, #c44569);
+        border: none;
+        color: white;
+        padding: 12px 30px;
+        font-size: 27px;
+        border-radius: 10px;
+        cursor: pointer;
+        font-family: "Courier New", monospace;
+        font-weight: bold;
+        transition: transform 0.2s;
+        -webkit-appearance: none;
+        appearance: none;
+      }
+
+      #end-message button:hover {
+        transform: scale(1.05);
+      }
+
       #game-stage {
         position: absolute;
         width: 1280px; /* Fixed Game Width */
@@ -357,6 +377,16 @@
       <br />
       <button onclick="checkCode()">START!</button>
       <div class="error" id="error-msg"></div>
+      <p
+        style="
+          margin-top: 30px;
+          font-size: 21px;
+          color: #ffc2d1;
+          font-style: italic;
+        "
+      >
+        Made with ❤️ by Achyutha
+      </p>
       <!-- <p
         style="margin-top: 30px; font-size: 21px; opacity: 0.8; color: #ffc2d1"
       >
@@ -474,6 +504,7 @@
           >
             Made with ❤️ by Achyutha
           </p>
+          <button onclick="replayGame()">Play Again 🎮</button>
         </div>
       </div>
     </div>
@@ -747,8 +778,8 @@
         }
 
         currentX = 400;
-        for (let i = 0; i < 27; i++) {
-          const gap = 90 + Math.random() * 75; // space between platforms
+        for (let i = 0; i < 24; i++) {
+          const gap = 100 + Math.random() * 80; // space between platforms
           currentX += gap;
 
           const y = 280 + Math.random() * 150;
@@ -791,7 +822,7 @@
         //   float: 0,
         // });
 
-        for (let i = 0; i < 30; i++) {
+        for (let i = 0; i < 28; i++) {
           hearts.push({
             x: 300 + i * 250 + Math.random() * 100,
             y: 350 + Math.random() * 200,
@@ -811,7 +842,7 @@
           y: canvas.height - TILE_SIZE * 1.625,
           width: 32,
           height: 32,
-          velocityX: 1 + Math.random() * 0.4 - 0.1,
+          velocityX: 1 + Math.random() * 0.4 - 0.05,
           direction: 1,
           patrolStart: 600,
           patrolEnd: 800,
@@ -819,7 +850,7 @@
           animTimer: 0,
         });
 
-        for (let i = 0; i < 20; i++) {
+        for (let i = 0; i < 19; i++) {
           const startX = 1000 + i * 400 + Math.random() * 200;
           enemies.push({
             x: startX,
@@ -871,6 +902,25 @@
         document.getElementById("message-overlay").style.display = "none";
         gameStarted = true;
         gameLoop();
+      }
+
+      function replayGame() {
+        // 1. Hide the end screen
+        document.getElementById("end-message").style.display = "none";
+
+        // 2. Set the win state back to false so the update loop runs
+        gameWon = false;
+
+        // 3. Clear existing level geometry, enemies, and items
+        platforms.length = 0;
+        enemies.length = 0;
+        hearts.length = 0;
+
+        // 4. Regenerate a fresh level
+        generateLevel();
+
+        // 5. Reset player stats and position
+        resetGame();
       }
 
       function update() {
